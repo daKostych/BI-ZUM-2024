@@ -64,12 +64,14 @@ public:
 
     void PrintStep(size_t step, bool flag)
     {
+        /*
         if (flag)
             std::cout << "Final path!!!" << '\n'
                       << std::endl;
         else
             std::cout << "Step " << step << '\n'
                       << std::endl;
+        */
 
         std::vector<std::vector<char>> print(maze.size(), std::vector<char>(maze[0].size(), ' '));
         for (int i = 0; i < (int)maze.size(); i++)
@@ -100,6 +102,7 @@ public:
                 point = {parent[point.y][point.x].x, parent[point.y][point.x].y};
             }
         }
+        std::cout << '\n';
         for (size_t i = 0; i < print.size(); i++)
         {
             for (size_t j = 0; j < print[i].size(); j++)
@@ -108,9 +111,16 @@ public:
             }
             std::cout << std::endl;
         }
+        /*
         if (flag)
             std::cout << "\nLength of the path (o): " << distance[destination.y][destination.x] << std::endl;
-        std::cout << "---------------------------------------------------------------------------------------------------------------------------\n\n";
+        */
+        std::cout << "--------------------------------------------------------------------------------------------------\n"
+                  << "S Start\nE End\n# Opened node\no Path\nX Wall\nspace Fresh node\n"
+                  << "--------------------------------------------------------------------------------------------------\n"
+                  << "Nodes expanded: " << expandedNodes << "\n"
+                  << "Path length: " << distance[destination.y][destination.x]
+                  << std::endl;
         print.clear();
     };
 
@@ -150,6 +160,7 @@ private:
                     if (distance[nextY][nextX] == -1)
                     {
                         Q.push({nextX, nextY});
+                        expandedNodes++;
                         distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
                         parent[nextY][nextX] = currentPoint;
 
@@ -158,7 +169,7 @@ private:
                             PrintStep(step++, true);
                             return;
                         }
-                        PrintStep(step++, false);
+                        // PrintStep(step++, false);
                     }
                 }
             }
@@ -185,6 +196,7 @@ private:
 
             if (currentPoint.x == destination.x && currentPoint.y == destination.y)
             {
+
                 PrintStep(step++, true);
                 return;
             }
@@ -206,9 +218,10 @@ private:
                                        { return p.x == nextX && p.y == nextY; })) == currentIteration.end()))
                     {
                         currentIteration.push_back(nextPoint);
+                        expandedNodes++;
                         distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
                         parent[nextY][nextX] = currentPoint;
-                        PrintStep(step++, false);
+                        // PrintStep(step++, false);
                     }
                 }
                 currentIteration.insert(currentIteration.end(), open.begin(), open.end());
@@ -263,9 +276,10 @@ private:
                                        { return p.x == nextX && p.y == nextY; })) == closed.end()))
                     {
                         open.push_back(nextPoint);
+                        expandedNodes++;
                         distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
                         parent[nextY][nextX] = currentPoint;
-                        PrintStep(step++, false);
+                        // PrintStep(step++, false);
                     }
                 }
                 closed.push_back(currentPoint);
@@ -277,7 +291,7 @@ private:
     std::vector<std::vector<int>> distance;
     std::vector<std::vector<Point>> parent;
     Point start, destination;
-    size_t step = 1;
+    size_t step = 1, expandedNodes = 0;
     bool flag = false;
 };
 
