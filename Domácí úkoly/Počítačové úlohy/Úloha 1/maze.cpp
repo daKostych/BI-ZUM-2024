@@ -5,12 +5,11 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <random>
 
 struct Point
 {
     int x, y;
-
-    // bool operator==(const Point &second) const { return x == second.x && y == second.y; }
 };
 
 class Maze
@@ -27,7 +26,6 @@ public:
 
         while (std::getline(inputFile, line))
         {
-            // std::cout << line << std::endl;
             if (!line.find("start"))
             {
                 std::istringstream in(line);
@@ -84,7 +82,7 @@ public:
                     print[i][j] = 'S';
                 else if (destination.y == i && destination.x == j)
                     print[i][j] = 'E';
-                else if (distance[i][j] > 0 /*&& !flag*/)
+                else if (distance[i][j] > 0)
                     print[i][j] = '#';
                 else
                     print[i][j] = ' ';
@@ -110,6 +108,8 @@ public:
             }
             std::cout << std::endl;
         }
+        if (flag)
+            std::cout << "\nLength of the path (o): " << distance[destination.y][destination.x] << std::endl;
         std::cout << "---------------------------------------------------------------------------------------------------------------------------\n\n";
         print.clear();
     };
@@ -162,7 +162,6 @@ private:
                     }
                 }
             }
-            // PrintStep(step++, false);
         }
     };
 
@@ -207,7 +206,6 @@ private:
                                        { return p.x == nextX && p.y == nextY; })) == currentIteration.end()))
                     {
                         currentIteration.push_back(nextPoint);
-                        // open.insert(open.begin(), nextPoint);
                         distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
                         parent[nextY][nextX] = currentPoint;
                         PrintStep(step++, false);
@@ -217,12 +215,63 @@ private:
                 open = currentIteration;
                 closed.push_back(currentPoint);
                 currentIteration.clear();
-                // PrintStep(step++, false);
             }
         }
     };
 
-    void RandomSearch(){};
+    void RandomSearch()
+    {
+        distance = std::vector<std::vector<int>>(maze.size(), std::vector<int>(maze[0].size(), -1));
+        parent = std::vector<std::vector<Point>>(maze.size(), std::vector<Point>(maze[0].size(), {-1, -1}));
+
+        std::vector<Point> open;
+        open.push_back(start);
+        distance[start.y][start.x] = 0;
+        std::vector<Point> closed;
+
+        int moveX[] = {1, -1, 0, 0};
+        int moveY[] = {0, 0, 1, -1};
+
+        while (!open.empty())
+        {
+            std::random_device rd;
+            std::mt19937 rng(rd());
+
+            std::uniform_int_distribution<int> distribution(0, open.size() - 1);
+            int random_index = distribution(rng);
+
+            Point currentPoint = open[random_index];
+            open.erase(open.begin() + random_index);
+
+            if (currentPoint.x == destination.x && currentPoint.y == destination.y)
+            {
+                PrintStep(step++, true);
+                return;
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    int nextX = currentPoint.x + moveX[i];
+                    int nextY = currentPoint.y + moveY[i];
+                    Point nextPoint = {nextX, nextY};
+
+                    if (isValidMove(nextX, nextY) &&
+                        ((std::find_if(open.begin(), open.end(), [&](const Point &p)
+                                       { return p.x == nextX && p.y == nextY; })) == open.end()) &&
+                        ((std::find_if(closed.begin(), closed.end(), [&](const Point &p)
+                                       { return p.x == nextX && p.y == nextY; })) == closed.end()))
+                    {
+                        open.push_back(nextPoint);
+                        distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
+                        parent[nextY][nextX] = currentPoint;
+                        PrintStep(step++, false);
+                    }
+                }
+                closed.push_back(currentPoint);
+            }
+        }
+    };
 
     std::vector<std::vector<char>> maze;
     std::vector<std::vector<int>> distance;
