@@ -10,6 +10,8 @@
 struct Point
 {
     int x, y;
+
+    bool operator==(const Point &second) { return x == second.x && y == second.y; };
 };
 
 class Maze
@@ -19,7 +21,7 @@ public:
     {
         if (!inputFile.is_open())
         {
-            std::cout << "Unable to open the file" << std::endl;
+            std::cout << "Error: Unable to open the file." << std::endl;
         }
 
         std::string line, keyword, comma;
@@ -52,14 +54,17 @@ public:
 
     void Solve(const std::string &algorithm)
     {
-        if (algorithm == "BFS")
+        if (start == destination)
+            std::cout << "\nStart and Destination are the same point!\n"
+                      << std::endl;
+        else if (algorithm == "BFS")
             BFS();
         else if (algorithm == "DFS")
             DFS();
         else if (algorithm == "RS")
             RandomSearch();
         else
-            std::cout << "Invalid algorithm." << std::endl;
+            std::cout << "Error: Invalid algorithm." << std::endl;
     };
 
     void PrintStep(size_t step, bool flag)
@@ -299,7 +304,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 3)
     {
-        std::cout << "Error" << std::endl;
+        std::cout << "Error: Mismatch number of CLI parametrs." << std::endl;
         return 1;
     }
 
