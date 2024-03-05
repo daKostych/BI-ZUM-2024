@@ -12,6 +12,15 @@ struct Point
     int x, y;
 
     bool operator==(const Point &second) { return x == second.x && y == second.y; };
+    double distanceTo(const Point &target) const { return std::sqrt(std::pow((x - target.x), 2) + std::pow((y - target.y), 2)); };
+};
+
+struct PointComparator
+{
+    Point target;
+
+    PointComparator(const Point &target) : target(target){};
+    bool operator()(const Point &p1, const Point &p2) { return p1.distanceTo(target) > p2.distanceTo(target); };
 };
 
 class Maze
@@ -22,6 +31,7 @@ public:
         if (!inputFile.is_open())
         {
             std::cout << "Error: Unable to open the file." << std::endl;
+            exit(1);
         }
 
         std::string line, keyword, comma;
@@ -63,6 +73,8 @@ public:
             DFS();
         else if (algorithm == "RS")
             RandomSearch();
+        else if (algorithm == "GS")
+            GS();
         else
             std::cout << "Error: Invalid algorithm." << std::endl;
     };
@@ -288,6 +300,50 @@ private:
                     }
                 }
                 closed.push_back(currentPoint);
+            }
+        }
+    };
+
+    void GS()
+    {
+        distance = std::vector<std::vector<int>>(maze.size(), std::vector<int>(maze[0].size(), -1));
+        parent = std::vector<std::vector<Point>>(maze.size(), std::vector<Point>(maze[0].size(), {-1, -1}));
+
+        std::priority_queue<Point, std::vector<Point>, PointComparator> open(PointComparator(this->destination));
+        open.push(start);
+        distance[start.y][start.x] = 0;
+        std::vector<Point> closed;
+
+        int moveX[] = {1, -1, 0, 0};
+        int moveY[] = {0, 0, 1, -1};
+
+        while (!open.empty())
+        {
+            Point currentPoint = open.top();
+            open.pop();
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nextX = currentPoint.x + moveX[i];
+                int nextY = currentPoint.y + moveY[i];
+
+                if (isValidMove(nextX, nextY))
+                {
+                    if (distance[nextY][nextX] == -1)
+                    {
+                        open.push({nextX, nextY});
+                        expandedNodes++;
+                        distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
+                        parent[nextY][nextX] = currentPoint;
+
+                        if (destination.x == nextX && destination.y == nextY)
+                        {
+                            PrintStep(step++, true);
+                            return;
+                        }
+                        // PrintStep(step++, false);
+                    }
+                }
             }
         }
     };
