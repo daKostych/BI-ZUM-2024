@@ -9,18 +9,30 @@
 
 struct Point
 {
-    int x, y;
+    int x, y, distance;
+
+    Point(int x, int y, int d) : x(x), y(y), distance(d){};
+    Point(int x, int y) : x(x), y(y), distance(0){};
+    Point() : x(0), y(0), distance(0){};
 
     bool operator==(const Point &second) { return x == second.x && y == second.y; };
     double distanceTo(const Point &target) const { return std::sqrt(std::pow((x - target.x), 2) + std::pow((y - target.y), 2)); };
 };
 
-struct PointComparator
+struct PointComparatorGS
 {
     Point target;
 
-    PointComparator(const Point &target) : target(target){};
+    PointComparatorGS(const Point &target) : target(target){};
     bool operator()(const Point &p1, const Point &p2) { return p1.distanceTo(target) > p2.distanceTo(target); };
+};
+
+struct PointComparatorAS
+{
+    Point target;
+
+    PointComparatorAS(const Point &target) : target(target){};
+    bool operator()(const Point &p1, const Point &p2) { return (p1.distanceTo(target) + p1.distance) > (p2.distanceTo(target) + p2.distance); };
 };
 
 class Maze
@@ -75,6 +87,8 @@ public:
             RandomSearch();
         else if (algorithm == "GS")
             GS();
+        else if (algorithm == "AS")
+            AStar();
         else
             std::cout << "Error: Invalid algorithm." << std::endl;
     };
@@ -309,10 +323,9 @@ private:
         distance = std::vector<std::vector<int>>(maze.size(), std::vector<int>(maze[0].size(), -1));
         parent = std::vector<std::vector<Point>>(maze.size(), std::vector<Point>(maze[0].size(), {-1, -1}));
 
-        std::priority_queue<Point, std::vector<Point>, PointComparator> open(PointComparator(this->destination));
+        std::priority_queue<Point, std::vector<Point>, PointComparatorGS> open(PointComparatorGS(this->destination));
         open.push(start);
         distance[start.y][start.x] = 0;
-        std::vector<Point> closed;
 
         int moveX[] = {1, -1, 0, 0};
         int moveY[] = {0, 0, 1, -1};
@@ -348,9 +361,52 @@ private:
         }
     };
 
+    void AStar()
+    {
+        distance = std::vector<std::vector<int>>(maze.size(), std::vector<int>(maze[0].size(), -1));
+        parent = std::vector<std::vector<Point>>(maze.size(), std::vector<Point>(maze[0].size(), {-1, -1}));
+
+        std::priority_queue<Point, std::vector<Point>, PointComparatorAS> open(PointComparatorAS(this->destination));
+        open.push(start);
+        distance[start.y][start.x] = 0;
+
+        int moveX[] = {1, -1, 0, 0};
+        int moveY[] = {0, 0, 1, -1};
+
+        while (!open.empty())
+        {
+            Point currentPoint = open.top();
+            open.pop();
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nextX = currentPoint.x + moveX[i];
+                int nextY = currentPoint.y + moveY[i];
+
+                if (isValidMove(nextX, nextY))
+                {
+                    if (distance[nextY][nextX] == -1)
+                    {
+                        open.push({nextX, nextY, distance[currentPoint.y][currentPoint.x] + 1});
+                        expandedNodes++;
+                        distance[nextY][nextX] = distance[currentPoint.y][currentPoint.x] + 1;
+                        parent[nextY][nextX] = currentPoint;
+
+                        if (destination.x == nextX && destination.y == nextY)
+                        {
+                            PrintStep(step++, true);
+                            return;
+                        }
+                        // PrintStep(step++, false);
+                    }
+                }
+            }
+        }
+    };
+
     std::vector<std::vector<char>> maze;
-    std::vector<std::vector<int>> distance;
     std::vector<std::vector<Point>> parent;
+    std::vector<std::vector<int>> distance;
     Point start, destination;
     size_t step = 1, expandedNodes = 0;
     bool flag = false;
