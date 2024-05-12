@@ -1,0 +1,8 @@
+# ninja log v5
+2	839	1715522893561846764	CMakeFiles/Semestral_work.dir/changeWorstSolver.cpp.o	c20f03c1c304c387
+1	865	1715522893589846847	CMakeFiles/Semestral_work.dir/randomSolver.cpp.o	4b5a2585fb21d17e
+2	1106	1715522893829847564	CMakeFiles/Semestral_work.dir/neighborSolver.cpp.o	8134def1f15cf12b
+2	1113	1715522893837847588	CMakeFiles/Semestral_work.dir/minimizeSolver.cpp.o	2fb39050ddb1bb03
+1	1279	1715522894001848077	CMakeFiles/Semestral_work.dir/main.cpp.o	8de8ac2cef70ab74
+1	1388	1715522894113848411	CMakeFiles/Semestral_work.dir/sudokuSolver.cpp.o	2e248b3df94d4bbb
+1388	1451	1715522894173848590	Semestral_work	c3418b4fadaa70e4

@@ -1,0 +1,3 @@
+/home/kostyadovnar/CLionProjects/bi-zum/Semestral work/src/cmake-build-debug/CMakeFiles/Semestral_work.dir
+/home/kostyadovnar/CLionProjects/bi-zum/Semestral work/src/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/kostyadovnar/CLionProjects/bi-zum/Semestral work/src/cmake-build-debug/CMakeFiles/rebuild_cache.dir
